@@ -24,8 +24,8 @@ function findAllFiles(dirPath, arrayOfFiles) {
                 }
             }
         })
-        .catch(err => {
-            console.log(err)
+        .catch(error => {
+            console.log(error)
         });
 
     return arrayOfFiles;
