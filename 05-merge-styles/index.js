@@ -5,7 +5,7 @@ const { readdir } = require('fs/promises');
 const dirPath = path.join(__dirname, 'styles');
 const bundleDirPath = path.join(__dirname, 'project-dist', 'bundle.css');
 
-const cssData = [];
+let cssData = '';
 
 readdir(dirPath, { withFileTypes: true })
     .then(files => {
@@ -14,9 +14,9 @@ readdir(dirPath, { withFileTypes: true })
                 try {
                     if (path.extname(file.name) === '.css') {
                         let readStream = fs.createReadStream(path.join(dirPath, file.name), 'utf-8');
-                        readStream.on('data', chunk => cssData.push(chunk));
+                        readStream.on('data', chunk => cssData += chunk);
                         readStream.on('end', () => {
-                            fs.appendFile(bundleDirPath, cssData.join(' '), (error) => {
+                            fs.appendFile(bundleDirPath, cssData, (error) => {
                                 if (error) return console.error(error.message);
                             })
                         })
