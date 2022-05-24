@@ -25,41 +25,35 @@ readStream.on('end', () => {
 });
 readStream.on('error', (error) => process.stdout.write('Error' + error.message));
 
-function replaceTemplatesTag(listOfTemplates) {
+async function replaceTemplatesTag(listOfTemplates) {
     //Create or replace file index.html
-    copyFile(path.join(__dirname, 'template.html'), path.join(__dirname, 'project-dist', 'index.html'), fs.constants.COPYFILE_FICLONE);
+    await copyFile(path.join(__dirname, 'template.html'), path.join(__dirname, 'project-dist', 'index.html'), fs.constants.COPYFILE_FICLONE);
     //Replace templates by html code
-    readdir(dirPath, { withFileTypes: true })
-        .then(files => {
-            for (let file of files) {
-                if (file.isFile()) {
-                    try {
-                        for (let i = 0; i < listOfTemplates.length; i++) {
-                            if ((file.name) === listOfTemplates[i] + '.html') {
-                                let templateFileData = '';
-                                let readStream = fs.createReadStream(path.join(dirPath, file.name), 'utf-8');
-                                readStream.on('data', chunk => templateFileData += chunk);
-                                readStream.on('end', () => {
-                                    // let regex = new RegExp('{{' + listOfTemplates[i] + '}}');
-                                    indexData = indexData.replace('{{' + listOfTemplates[i] + '}}', templateFileData);
-                                    //Write data to index file
-                                    fs.writeFile(path.join(__dirname, 'project-dist', 'index.html'), indexData, (error) => {
-                                        if (error) return console.error(error.message);
-                                    })
-                                })
-                                readStream.on('error', (error) => process.stdout.write('Error' + error.message));
-                                break;
-                            }
-                        }
-                    } catch (error) {
-                        console.log(error.message);
+    const files = await readdir(dirPath, { withFileTypes: true })
+    for (let file of files) {
+        if (file.isFile()) {
+            try {
+                for (let i = 0; i < listOfTemplates.length; i++) {
+                    if ((file.name) === listOfTemplates[i] + '.html') {
+                        let templateFileData = '';
+                        let readStream = fs.createReadStream(path.join(dirPath, file.name), 'utf-8');
+                        readStream.on('data', chunk => templateFileData += chunk);
+                        readStream.on('end', () => {
+                            indexData = indexData.replace('{{' + listOfTemplates[i] + '}}', templateFileData);
+                            //Write data to index file
+                            fs.writeFile(path.join(__dirname, 'project-dist', 'index.html'), indexData, (error) => {
+                                if (error) return console.error(error.message);
+                            })
+                        })
+                        readStream.on('error', (error) => process.stdout.write('Error' + error.message));
+                        break;
                     }
                 }
+            } catch (error) {
+                console.log(error.message);
             }
-        })
-        .catch(err => {
-            console.log(err)
-        });
+        }
+    }
 }
 
 function findTemplatesTag(data) {
