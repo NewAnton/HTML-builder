@@ -92,7 +92,6 @@ function createCSS() {
     })
 
     function mergeStyles() {
-        let cssData = '';
 
         readdir(dirPath, { withFileTypes: true })
             .then(files => {
@@ -101,6 +100,7 @@ function createCSS() {
                         try {
                             if (path.extname(file.name) === '.css') {
                                 let readStream = fs.createReadStream(path.join(dirPath, file.name), 'utf-8');
+                                let cssData = '';
                                 readStream.on('data', chunk => cssData += chunk);
                                 readStream.on('end', () => {
                                     fs.appendFile(bundleDirPath, cssData, (error) => {
